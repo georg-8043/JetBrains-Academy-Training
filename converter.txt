@@ -1,0 +1,180 @@
+Description
+There are also fractional numbers that can be converted from one base to another. To convert fractional number base, you should use the algorithm described below.
+
+Algorithm
+As you know from the previous stage, in order to convert a number from one base to another, first, we need to convert it to decimal if it’s not decimal yet, and only then convert it to another base. The same applies to fractional numbers.
+
+Let’s imagine you have a fractional number ab.cdefab.cdef where abab is the integer part, cdefcdef is the fractional part, and a, b, c, d, e, fa,b,c,d,e,f are some digits or literals, depending on the base of a number.
+
+In this case, we have 2 digits (letters) in the integer part and 4 digits (literals) in the fractional part. In other cases, the number of digits (literals) in parts can be different.
+
+To convert the number into decimal we need to:
+
+Split the number into two parts: integer and fractional
+Convert the integer part into decimal using a method you already know from the previous stage.
+Convert the fractional part into decimal using the following formula:
+decimalValue = {c \over base^1} + {d \over base^2} + {e \over base^3} + {f \over base^4}
+decimalValue=
+base
+1
+
+c
+​
+ +
+base
+2
+
+d
+​
+ +
+base
+3
+
+e
+​
+ +
+base
+4
+
+f
+​
+
+The more digits (literals) in fractional part, the more addends in the formula. If the fractional part has letters, then you should use their number representation: ‘a’ – 10, ‘b’ – 10, c – ‘11’, and so on.
+
+As a result, you should get a decimal number no greater than 1. If it is greater than 1, you did something wrong.
+
+To see the decimal representation of a source number, you can sum the decimal integer part and the decimal fractional part.
+
+To convert a decimal fractional number into any other base we need to:
+
+Split the decimal number into two parts: integer and fractional
+Convert the integer part into the new base
+Convert the fractional part from decimal to any other base.
+Let’s elaborate on this third step and convert the fractional part in 0.5168 into base 19 as an example.
+
+Multiply the fractional part by the new base: 0.5168 * 19 = 9.81920.5168∗19=9.8192. The integer part of the result is the first digit (or letter if the integer part is greater than 9) in the fractional part of a number in the new base. In this case, the first digit in the fractional part will be 9.
+
+Take the fractional part from the result of the multiplication and multiply it by the new base again: 0.8192 * 19 = 15.56480.8192∗19=15.5648. For numbers greater than 9, you should use their literal representation: 10 – ‘a’, 11 – ‘b’, 12 – ‘c’, and so on. In this case, the second digit (literal) will be f (15).
+
+To calculate the rest of the digits (literals), you should repeat this action. In this stage, your program should output only 5 digits (literals) in the fractional part:
+
+0.5648 * 19 = 10.7312 \text{ (a)}\\ 0.7312 * 19 = 13.8928 \text{ (d)}\\ 0.8928 * 19 = 16.9632 \text{ (g)}\\0.5648∗19=10.7312 (a)
+0.7312∗19=13.8928 (d)
+0.8928∗19=16.9632 (g)
+
+So the final result looks like this: 0.5168_{₁₀} = 0.9fadg_{₁₉}0.5168
+₁₀
+​
+ =0.9fadg
+₁₉
+​
+
+
+Example 1:
+
+0.234_{10}0.234
+10
+​
+  to base 7.
+
+0.234 \cdot 7 = 1.6380.234⋅7=1.638: the first fraction symbol is 1.
+Remove integer part. 0.638 \cdot 7 = 4.4660.638⋅7=4.466: the second fraction symbol is 4.
+Remove integer part. 0.466 \cdot 7 = 3.2620.466⋅7=3.262: the third fraction symbol is 3.
+The same for the next symbols.
+So, the number in the base 7 would be 0.143..._70.143...
+7
+​
+
+
+Example 2:
+
+0.234_{10}0.234
+10
+​
+  to base 36.
+
+0.234  \cdot 36 = 8.4240.234  ⋅36=8.424: the first fraction symbol is 8.
+0.424 \cdot 36 = 15.2640.424⋅36=15.264: the second fraction symbol is '15' and 'f' in base 36.
+0.264 \cdot 36 = 9.5040.264⋅36=9.504: the third fraction symbol is 9.
+So, the number in the base 36 would be 0.8f9..._{36}0.8f9...
+36
+​
+
+
+Example 3:
+
+0.234_{7}0.234
+7
+​
+  to base 36.
+
+Convert the fractional part to base 10 using the formula above: 2 / 7 + 3 / 49 + 4 / 343 = 0.358..._{10}2/7+3/49+4/343=0.358...
+10
+​
+
+Convert this number to base 36 like in example 2.
+This stage is auto-graded. The grader will input three lines: the source radix, the source number, and the target radix. Then it will check that your output is the correct number representation in the given radix. Don't forget to round up the result to 5 decimal places! If there is no fractional part in the initial number, you don't need to show the fractional part.
+
+Also, numbers in radix 1 cannot have a fractional part so they're tested only as the integer part, like it was in the previous stage.
+
+Examples
+Example 1:
+
+Input:
+
+10
+0.234
+7
+Output:
+
+0.14315
+Example 2:
+
+Input:
+
+10
+10.234
+7
+Output:
+
+13.14315
+Example 3:
+
+Input:
+
+35
+af.xy
+17
+Output:
+
+148.g88a8
+Example 4:
+
+Input:
+
+16
+aaaaa.0
+24
+Output:
+
+22df2.00000
+Example 5:
+
+Input:
+
+21
+4242
+6
+Output:
+
+451552
+Example 6:
+
+Input:
+
+1
+1111111
+10
+Output:
+
+7

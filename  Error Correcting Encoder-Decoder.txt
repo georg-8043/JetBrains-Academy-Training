@@ -1,0 +1,177 @@
+----------------Stage 5/5-----------------
+Description
+Code from the previous stage is work but not effective, because every byte contains only 3 significant bits - all other is just overhead to send the message reliably.
+
+In this stage we will use more efficient code - The Hamming code. In this code, every byte contains 4 significant bits and other 4 bits used for the overhead (well, only 3 of them used for the overhead, the last one just unused).
+
+To understand this code, you can watch this video.
+
+We will use the Hamming code [7,4], i.e. will write 7 bits, 4 of them would be significant bits, 3 of them would be parity bits and the last one would be unused - it should be always set to zero. In the Note that the video showed the Hamming code [12, 8] with 12 bits which contain 8 significant bits. You should create the analogy for the smaller Hamming code (just throw away 9-th to 12-th bits from the video).
+
+What to do if the error happened was twice inside a single byte? In our program, it won't happen since you simulate a single error in each byte. But in real life, it definitely can happen. In telecommunications, all messages split into packages. If errors in the package can't be corrected then this package should be retransmitted.
+
+Examples
+Example 1:
+
+Write a mode: encode
+
+send.txt:
+text view: Test
+hex view: 54 65 73 74
+bin view: 01010100 01100101 01110011 01110100
+
+encoded.txt:
+expand: ..0.101. ..0.100. ..0.110. ..0.101. ..0.111. ..0.011. ..0.111. ..0.100.
+parity: 01001010 10011000 11001100 01001010 00011110 10000110 00011110 10011000
+hex view: 4A 98 CC 4A 1E 86 1E 98
+Example 2:
+
+Write a mode: send
+
+encoded.txt:
+hex view: 4A 98 CC 4A 1E 86 1E 98
+bin view: 01001010 10011000 11001100 01001010 00011110 10000110 00011110 10011000
+
+received.txt:
+bin view: 01011010 10001000 10001100 01001110 00010110 10100110 00111110 10010000
+hex view: 5A 88 8C 4E 16 A6 3E 90
+Example 3:
+
+Write a mode: decode
+
+received.txt:
+hex view: 5A 88 8C 4E 16 A6 3E 90
+bin view: 01011010 10001000 10001100 01001110 00010110 10100110 00111110 10010000
+
+decoded.txt:
+correct: 01001010 10011000 11001100 01001010 00011110 10000110 00011110 10011000
+decode: 01010100 01100101 01110011 01110100
+hex view: 54 65 73 74
+text view: Test
+
+------------------Stage 4/5------------------------------
+Description
+For errors like on the previous stage, simple code from stage 2 doesn't work, because all of 3 symbols will be with errors. Also, we can't write triples of bits like symbols in stage 2, because some triples will be in different bytes. Because of this, 1 triple of bits can contain 2 errors and this triple can't be corrected.
+
+For this reason, we need another correcting code. We will write every bit twice, in every byte 2 last bits will be bits of parity. The parity bit is the sum of the data bits modulo 2. In that way, we write 3 input data bits in one byte.
+
+
+
+For decoding, we find a pair with error (where the two bits that are supposed to be similar is, in fact, different after receiving the byte). If the error inside data pairs (first 3 pairs) then you can calculate the real bit which was there before sending using the scheme below. If an error inside a parity bits you should do nothing since data bits are correct.
+
+
+
+The program in this stage should work in 3 modes: encode, send and decode.
+
+If the mode is encode then you need to take the text from send.txt, convert it to ready-to-send form (where you have three significant bits per byte) and save the resulted bytes into the file named encoded.txt.
+
+If the mode is send, you should take the file from encoded.txt and simulate the errors in its bytes (1 bit per byte) and save the resulted bytes into the file named received.txt.
+
+If the mode is decode, you should take the file from received.txt and decode it to the normal text. Save the text into the file named decoded.txt.
+
+Examples
+Example 1:
+
+Write a mode: encode
+
+send.txt:
+text view: Test
+hex view: 54 65 73 74
+bin view: 01010100 01100101 01110011 01110100
+
+encoded.txt:
+expand: 001100.. 110011.. 000000.. 111100.. 001100.. 110011.. 111100.. 001111.. 001111.. 110011.. 0000....
+parity: 00110011 11001100 00000000 11110000 00110011 11001100 11110000 00111100 00111100 11001100 00000000
+hex view: 33 CC 00 F0 33 CC F0 3C 3C CC 00
+Example 2:
+
+Write a mode: send
+
+encoded.txt:
+hex view: 33 CC 00 F0 33 CC F0 3C 3C CC 00
+bin view: 00110011 11001100 00000000 11110000 00110011 11001100 11110000 00111100 00111100 11001100 00000000
+
+received.txt:
+bin view: 10110011 11011100 00100000 11010000 00110010 11011100 10110000 01111100 00110100 10001100 00010000
+hex view: B3 DC 20 D0 32 DC B0 7C 34 8C 10
+Example 3:
+
+Write a mode: decode
+
+received.txt:
+hex view: B3 DC 20 D0 32 DC B0 7C 34 8C 10
+bin view: 10110011 11011100 00100000 11010000 00110010 11011100 10110000 01111100 00110100 10001100 00010000
+
+decoded.txt:
+correct: 00110011 11001100 00000000 11110000 00110011 11001100 11110000 00111100 00111100 11001100 00000000
+decode: 01010100 01100101 01110011 01110100 0
+remove: 01010100 01100101 01110011 01110100
+hex view: 54 65 73 74
+text view: Test
+
+--------------------------Stage 3/5-----------------------------------
+Description
+In real telecommunication, errors occur on a bit level. For this reason, we must learn to work with this. Now, instead of doing one error every three bytes, the program on this stage should make an error in one bit per byte. So, every byte would be corrupted, but in a small way.
+
+For example, let's take the symbol 'A'. In binary, it would be 01000001. Making an error in a single bit of this would get something like 01010001 or 00000001 or 11000001 making it be a completely different symbol, but in binary - very close to the symbol 'A'. By the way, you can see all binary and hexadecimal representations of the standard symbols here.
+
+In this stage, you should write a program that reads the text the user wants to send from the send.txt, and simulates the sending through a poor internet connection making one-bit errors in every byte of the text. Notice that this text is no longer a string since after manipulations in every byte it may happen to be that some bytes didn't correspond to a specific character in the table because Java does not use ASCII table representation in their String implementation. Java uses UNICODE that happens to match with ASCII in the first 128 symbols, but no further. The String class is too complicated for low-level manipulations so you should use bytes or chars instead.
+
+The received message which contains an error in a single bit in every byte should be saved into received.txt.
+
+Also for work with this file in a hex format, you need a DeltaHex Editor - a plugin for IntelliJ IDEA.
+
+Example
+Suppose your send.txt looks like this:
+
+Simple text.
+
+In the hex it should look like this in hex:
+
+53 69 6D 70 6C 65 20 74 65 78 74 2E
+Which will look like this in binary:
+
+01010011 01101001 01101101 01110000
+01101100 01100101 00100000 01110100
+01100101 01111000 01110100 00101110
+
+After the receiving, the file recieved.txt can look something like this in hex:
+
+73 29 69 72 6E 61 A0 64 75 68 76 AE
+Which will look something like this in binary (you can see a one-bit difference in each byte):
+
+01110011 00101001 01101001 01110010
+01101110 01100001 10100000 01100100
+01110101 01101000 01110110 10101110
+
+Which will look like this in a non-hex viewer:
+
+s)irna duhv®
+
+------------------------Stage 2/5-------------------------
+Description
+Errors are made, but how to correct them?
+
+Since we know that the error can be at max every 3 symbols, we can record every symbol 3 times. So, every symbol would be tripled before sending to the internet via a poor connection. Since we have only one error for 3 symbols, in every 3 symbols 2 will necessarily be the same.
+
+For example, if the user wants to send this text: "Ab", coded text before sending would be: "AAAbbb", the text after receiving through poor internet connection would be something like "AsAbb2" (as in the previous stage), after decoding we can get "Ab" since the first three symbols contain two A's and the second three symbols contain two b's.
+
+In this stage, you should write a program that:
+
+Takes a message the user wants it send. The input contains a single message.
+Encode the message by tripling all the symbols.
+Simulate sending this message via a poor internet connection (in other words, simulate errors).
+Decode it back again.
+Output the message on every step!
+
+Example
+Suppose, the input contains the following line:
+
+Important
+
+Then the output should be as the following.
+
+Important
+IIImmmpppooorrrtttaaannnttt
+I1ImQmOppooT0rruttaJannQ tt
+Important
